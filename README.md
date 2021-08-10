@@ -128,3 +128,19 @@ spec:
 EOF
 ```
 
+### intergress
+
+[nginx-ingress 操作](https://cloud.google.com/community/tutorials/nginx-ingress-gke)
+
+#### 创建 ingress 测试的集群
+
+```shell
+# 如果存在  nginx-ingress-cluster 先删除
+kind delete clusters nginx-ingress-cluster
+
+# 进入到 ./k8s/ingress 下面执行 run.sh 自动安装所需依赖
+
+ # 最终会被转发到一个 pod 中 /foo 匹配不到资源，nginx 报错，但是已经可以从外部访问资源了。
+ curl localhost/foo
+```
+
