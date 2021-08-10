@@ -1,0 +1,23 @@
+version: '3'
+services:
+  docker-registry:
+    image: registry:2.7.1
+    restart: always
+    container_name: fly-devops-docker-registry
+    ports:
+      - "20601:5000"
+    networks:
+      - fly-devops
+    volumes:
+      - fly-devops-docker-registry-data:/var/lib/registry
+      - ./docker-registry-certs/htpasswd:/auth/htpasswd
+    environment:
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
+networks:
+  fly-devops:
+    driver: bridge
+volumes:
+  fly-devops-docker-registry-data:
+    driver: local

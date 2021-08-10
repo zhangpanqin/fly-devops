@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+    id "com.avast.gradle.docker-compose" version "0.14.0" apply false
+    id 'org.springframework.boot' version '2.5.2' apply false
+    id "io.spring.dependency-management" version "1.0.11.RELEASE" apply false
+    id "org.springframework.cloud.contract" version "3.0.3" apply false
+    id "org.unbroken-dome.test-sets" version "4.0.0" apply false
+    id 'com.google.cloud.tools.jib' version '3.1.2' apply false
+}
+
+allprojects {
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    repositories {
+        maven{
+            url 'https://maven.aliyun.com/nexus/content/groups/public/'
+        }
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "maven-publish"
+    apply plugin: "groovy"
+
+    configurations.all {
+        resolutionStrategy {
+            cacheChangingModulesFor 0,"seconds"
+            force 'com.jayway.jsonpath:json-path:2.6.0'
+            force 'io.zonky.test:embedded-database-spring-test:2.0.0'
+            force 'it.ozimov:embedded-redis:0.7.3'
+            force 'org.springframework.cloud:spring-cloud-starter-zipkin:2.2.8.RELEASE'
+            force 'net.logstash.logback:logstash-logback-encoder:6.4'
+        }
+    }
+
+    configurations {
+        parentBom
+        runtimeOnly.extendsFrom(parentBom)
+        compileOnly.extendsFrom(parentBom)
+        annotationProcessor.extendsFrom(parentBom)
+        implementation.extendsFrom(parentBom)
+        api.extendsFrom(parentBom)
+    }
+    dependencies {
+//        org.springframework.boot:spring-boot-dependencies:2.5.2
+        parentBom platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+        parentBom platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+        implementation 'org.apache.commons:commons-lang3:3.12.0'
+        implementation 'org.apache.commons:commons-collections4:4.4'
+    }
+    wrapper {
+        gradleVersion = "6.8"
+    }
+
+    tasks.withType(Test) {
+        useJUnitPlatform()
+    }
+}
+apply from: "${rootProject.projectDir}/gradle/docker-compose/docker-compose.gradle"

@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Service
+metadata:
+  labels:
+    app: order-manage-service
+  name: order-manage-service
+  namespace: fly-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: order-manage-service
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080

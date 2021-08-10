@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: order-manage-service
+  name: order-manage-service
+  namespace: fly-dev
+spec:
+  selector:
+    matchLabels:
+      app: order-manage-service
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: order-manage-service
+    spec:
+      containers:
+        - name: order-manage-service
+          image: registry.cn-hangzhou.aliyuncs.com/fly-devops/order-manage-service:1.1.0
+          ports:
+            - containerPort: 8080

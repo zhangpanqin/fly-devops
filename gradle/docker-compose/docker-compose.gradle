@@ -1,0 +1,8 @@
+apply plugin: 'com.avast.gradle.docker-compose'
+
+dockerCompose {
+    useComposeFiles = ["${rootProject.projectDir}/gradle/docker-compose/docker-compose.yml"]
+}
+
+//dependsOn will not stop docker container after bootRun exit and can be reused afterwards, this is good for local development
+//bootRun.dependsOn composeUp

@@ -1,0 +1,2 @@
+rootProject.name = 'fly-devops'
+include 'order-manage-service'
