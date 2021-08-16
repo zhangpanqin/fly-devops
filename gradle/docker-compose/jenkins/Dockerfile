@@ -1,7 +1,6 @@
 FROM jenkins/jenkins:lts-jdk11
 USER root
 
-
 RUN apt-get update && \
 apt-get install -qy \
   apt-utils \
@@ -26,9 +25,9 @@ apt-get install -qy \
   software-properties-common \
   zip \
   unzip \
+  sudo \
   gfortran && \
 rm -rf /var/lib/apt/lists/*
-
 # Install docker
 RUN wget https://download.docker.com/linux/debian/gpg && \
     apt-key add gpg && \
@@ -48,9 +47,14 @@ COPY --chown=jenkins:jenkins executors.groovy /usr/share/jenkins/ref/init.groovy
 COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt
 
 COPY --chown=jenkins:jenkins jenkins-plugin-cli.sh /usr/local/bin/jenkins-plugin-cli.sh
-RUN chmod +x /usr/local/bin/jenkins-plugin-cli.sh
-RUN /usr/local/bin/jenkins-plugin-cli.sh --plugin-file /usr/share/jenkins/ref/plugins.txt
+RUN chmod +x /usr/local/bin/jenkins-plugin-cli.sh && \
+/usr/local/bin/jenkins-plugin-cli.sh --plugin-file /usr/share/jenkins/ref/plugins.txt
+
 
 # add the jenkins user to the docker group so that sudo is not required to run docker commands
-RUN groupmod -g 1026 docker && gpasswd -a jenkins docker
+RUN groupmod -g 1026 docker && gpasswd -a jenkins docker && \
+touch /var/run/docker.sock && \
+sudo chgrp docker /var/run/docker.sock && \
+sudo chmod g+w /var/run/docker.sock
+
 USER jenkins
