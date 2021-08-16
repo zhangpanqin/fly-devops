@@ -7,7 +7,7 @@ pipeline {
             }
             steps {
                 sh 'pwd'
-                sh 'gradle --version'
+                sh 'gradle build'
                 retry(3) {
                     sh 'echo retry'
                 }
