@@ -3,7 +3,8 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh './gradlew --version'
+                sh 'pwd'
+//                 sh './gradlew --version'
             }
         }
     }
