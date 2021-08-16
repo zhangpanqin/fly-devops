@@ -2,10 +2,10 @@ pipeline {
     agent none
     stages {
         stage('build') {
+            agent {
+                docker { image 'gradle:jdk11' }
+            }
             steps {
-                agent {
-                    docker { image 'gradle:jdk11' }
-                }
                 sh 'pwd'
                 sh 'gradlew --version'
                 retry(3) {
