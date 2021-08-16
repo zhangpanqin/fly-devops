@@ -11,3 +11,5 @@ ssh-agent:1.23
 cobertura:1.16
 htmlpublisher:1.25
 junit:1.52
+docker-workflow:1.26
+blueocean:1.24.8
