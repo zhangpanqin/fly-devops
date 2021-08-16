@@ -144,3 +144,50 @@ kind delete clusters nginx-ingress-cluster
  curl localhost/foo
 ```
 
+### jenkins
+
+#### 查看密码
+
+```shell
+docker exec jenkins-local cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+#### 主从集群搭建
+
+```shell
+# 1.首先 用密钥登陆
+
+#2.给 root 设置密码 
+sudo passwd root
+
+# 3.密码设置好后 切换到root用户 
+su root
+
+# 4.修改ssh配置文件，允许密码登录
+
+# 将 passwordAuthentication no 改为  passwordAuthentication yes
+# 将 PermitRootLogin 改为yes
+vim /etc/ssh/sshd_config
+
+# 重启sshd服务
+sudo /sbin/service sshd restart
+
+
+#su - jenkins一直有效，今天在centos发现无效，原因是
+
+#/etc/password文件中的/bin/bash被yum安装的时候变成了/bin/false.
+
+
+sudo -iu jenkins
+
+# 生成秘钥
+ssh-keygen -t rsa
+
+ssh root@34.217.96.124 mkdir -p .ssh
+
+# 将 master 上的公钥复制给 slave
+cat .ssh/id_rsa.pub | ssh root@52.34.98.137 'cat >> .ssh/authorized_keys'
+# 下载 slave
+wget http://18.236.162.214:8080/jnlpJars/slave.jar
+```
+

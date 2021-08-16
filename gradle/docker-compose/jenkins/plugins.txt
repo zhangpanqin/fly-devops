@@ -1,0 +1,9 @@
+token-macro:266.v44a80cf277fd
+git-client:3.9.0
+git:4.8.1
+github-api:1.123
+github:1.33.1
+gradle:1.37.1
+docker-plugin:1.2.2
+docker-slaves:1.0.7
+localization-zh-cn:1.0.24
