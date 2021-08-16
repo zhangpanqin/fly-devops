@@ -7,3 +7,7 @@ gradle:1.37.1
 docker-plugin:1.2.2
 docker-slaves:1.0.7
 localization-zh-cn:1.0.24
+ssh-agent:1.23
+cobertura:1.16
+htmlpublisher:1.25
+junit:1.52
