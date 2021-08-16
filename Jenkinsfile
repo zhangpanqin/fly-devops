@@ -6,11 +6,11 @@ pipeline {
                 sh 'pwd'
                 sh './gradlew --version'
                 retry(3) {
-                    sh 'echo 'retry''
+                    sh 'echo retry'
                 }
 
                 timeout(time: 3, unit: 'MINUTES') {
-                    sh 'echo 'timeout''
+                    sh 'echo timeout'
                 }
             }
         }
