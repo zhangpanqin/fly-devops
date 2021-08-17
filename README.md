@@ -10,7 +10,7 @@ docker-compose -f ./gradle/docker-compose/docker-compose.yml up -d --build --for
 
 `fly-devops/gradle/docker-compose/jenkins/Dockerfile`
 
-以 jenkins:lts-jdk11为基础镜像 diy，镜像基础上中添加了 aws cli , docker,docker-compose,而且初始化了一些学习 jenkins 的必要插件
+以 jenkins:lts-jdk11为基础镜像 diy，镜像基础上中添加了 aws cli,ecr , docker,docker-compose,而且初始化了一些学习 jenkins 的必要插件
 
 #### 查看 jenkins 登录密码
 
