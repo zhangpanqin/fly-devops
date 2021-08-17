@@ -42,6 +42,11 @@ RUN curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-co
 RUN pip install cffi --upgrade
 RUN pip install pip2pi ansible==2.0
 
+# Install aws cli 2
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN sudo ./aws/install
+
 
 COPY --chown=jenkins:jenkins executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
 COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt

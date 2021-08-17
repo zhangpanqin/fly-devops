@@ -1,3 +1,23 @@
+### jenkins
+
+[自定义 Shared Libraries 代码参考](https://github.com/zhangpanqin/fly-devops-lib)
+
+### 插件
+
+- `CloudBees AWS Credentials` 保存 iam 秘钥
+- `Pipeline: AWS Steps` 使用 iam 秘钥，执行 aws 命令
+
+```groovy
+// 好东西啊
+withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
+  sh 'aws iam get-user'
+}
+```
+
+- `fly-devops/gradle/docker-compose/docker-compose.yml`
+
+在 jenkins:lts-jdk11镜像基础上中添加了 aws cli , docker,docker-compose,而且安装了一些学习 jenkins 的插件
+
 ### kind
 
 Kind 是 Kubernetes In Docker 的缩写
@@ -145,6 +165,12 @@ kind delete clusters nginx-ingress-cluster
 ```
 
 ### jenkins
+
+### arch
+
+```txt
+x86_64
+```
 
 #### 查看密码
 
