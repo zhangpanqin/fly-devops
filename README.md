@@ -19,6 +19,12 @@ docker-compose -f ./gradle/docker-compose/docker-compose.yml up -d --build --for
 docker exec jenkins-local cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 
+#### 访问 jenkins
+
+```txt
+http://localhost:30901
+```
+
 ### Jenkins 插件
 
 - `CloudBees AWS Credentials` 保存 iam 秘钥
@@ -27,7 +33,7 @@ docker exec jenkins-local cat /var/jenkins_home/secrets/initialAdminPassword
 ```groovy
 // 好东西啊
 withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
-  sh 'aws iam get-user'
+    sh 'aws iam get-user'
 }
 ```
 
