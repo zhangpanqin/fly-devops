@@ -26,6 +26,7 @@ apt-get install -qy \
   zip \
   unzip \
   sudo \
+  amazon-ecr-credential-helper \
   gfortran && \
 rm -rf /var/lib/apt/lists/*
 # Install docker
@@ -46,7 +47,6 @@ RUN pip install pip2pi ansible==2.0
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
 RUN sudo ./aws/install
-
 
 COPY --chown=jenkins:jenkins executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
 COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt

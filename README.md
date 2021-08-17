@@ -1,8 +1,25 @@
-### jenkins
+## jenkins
 
-[自定义 Shared Libraries 代码参考](https://github.com/zhangpanqin/fly-devops-lib)
+### 安装
 
-### 插件
+```shell
+./gradlew composeUp
+# 或者
+docker-compose -f ./gradle/docker-compose/docker-compose.yml up -d --build --force-recreate
+```
+
+`fly-devops/gradle/docker-compose/jenkins/Dockerfile`
+
+以 jenkins:lts-jdk11为基础镜像 diy，镜像基础上中添加了 aws cli , docker,docker-compose,而且初始化了一些学习 jenkins 的必要插件
+
+#### 查看 jenkins 登录密码
+
+```shell
+# 查看 jenkins 登录密码
+docker exec jenkins-local cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+### Jenkins 插件
 
 - `CloudBees AWS Credentials` 保存 iam 秘钥
 - `Pipeline: AWS Steps` 使用 iam 秘钥，执行 aws 命令
@@ -14,9 +31,9 @@ withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
 }
 ```
 
-- `fly-devops/gradle/docker-compose/docker-compose.yml`
+### Shared Libraries
 
-在 jenkins:lts-jdk11镜像基础上中添加了 aws cli , docker,docker-compose,而且安装了一些学习 jenkins 的插件
+[自定义 Shared Libraries 代码参考](https://github.com/zhangpanqin/fly-devops-lib)
 
 ### kind
 
@@ -164,19 +181,7 @@ kind delete clusters nginx-ingress-cluster
  curl localhost/foo
 ```
 
-### jenkins
-
-### arch
-
-```txt
-x86_64
-```
-
-#### 查看密码
-
-```shell
-docker exec jenkins-local cat /var/jenkins_home/secrets/initialAdminPassword
-```
+###  
 
 #### 主从集群搭建
 
