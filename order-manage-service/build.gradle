@@ -13,7 +13,8 @@ dependencies {
 }
 jib {
     to {
-        image = "626246113265.dkr.ecr.us-east-2.amazonaws.com/fly-devops:1.0.0"
+        image = "626246113265.dkr.ecr.us-east-2.amazonaws.com/${project.name}"
         credHelper = "ecr-login"
+        tags=["latest"]
     }
 }

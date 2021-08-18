@@ -43,6 +43,10 @@ withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
 
 ## AWS
 
+```shell
+docker container&&docker run --name fly-devops -d -p 80:8080 626246113265.dkr.ecr.us-east-2.amazonaws.com/order-manage-service
+```
+
 ### EC2
 
 ```shell
@@ -54,6 +58,32 @@ aws ecr get-login-password --region us-east-2 | docker login --username AWS --pa
 
 # docker 就可以拿到镜像了
 docker pull 626246113265.dkr.ecr.us-east-2.amazonaws.com/fly-devops:1.0.0
+```
+
+#### 搭建 k8s 集群
+
+注意 ec2 的内存和 cpu 不然搭建不起来。
+
+```shell
+# 安装 kind
+# kind 创建集群
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/aws/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/cornellanthony/nlb-nginxIngress-eks/master/apple.yaml
+kubectl apply -f https://raw.githubusercontent.com/cornellanthony/nlb-nginxIngress-eks/master/banana.yaml
+```
+
+#### 在 k8s 中使用私有镜像
+
+宿主机一定要先登录了 ecr 的权限，不然 `aws ecr get-login-password` 拿不到密码
+
+[Kubernetes - pull an image from private ECR registry](https://skryvets.com/blog/2021/03/15/kubernetes-pull-image-from-private-ecr-registry/)
+
+```shell
+kubectl create secret docker-registry regcred \
+  --docker-server=626246113265.dkr.ecr.us-east-2.amazonaws.com/order-manage-service \
+  --docker-username=AWS \
+  --docker-password=$(aws ecr get-login-password) \
+  --namespace=fly-devops
 ```
 
 ### kind
@@ -189,6 +219,8 @@ EOF
 ### intergress
 
 [nginx-ingress 操作](https://cloud.google.com/community/tutorials/nginx-ingress-gke)
+
+当 cpu 和 内存不足时，集群是创建不成功的
 
 #### 创建 ingress 测试的集群
 
