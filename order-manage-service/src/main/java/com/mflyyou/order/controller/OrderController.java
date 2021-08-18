@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
     @GetMapping("/test")
     public String test() {
-        return "success";
+        return "success1";
     }
 }

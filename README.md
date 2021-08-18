@@ -41,6 +41,21 @@ withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
 
 [自定义 Shared Libraries 代码参考](https://github.com/zhangpanqin/fly-devops-lib)
 
+## AWS
+
+### EC2
+
+```shell
+# ec2 已经安装了 aws cli，配置 iam
+aws configure
+
+# 配置可以拿到认证
+aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 626246113265.dkr.ecr.us-east-2.amazonaws.com
+
+# docker 就可以拿到镜像了
+docker pull 626246113265.dkr.ecr.us-east-2.amazonaws.com/fly-devops:1.0.0
+```
+
 ### kind
 
 Kind 是 Kubernetes In Docker 的缩写
