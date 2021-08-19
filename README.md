@@ -1,6 +1,6 @@
 ## jenkins
 
-### 安装
+### 本地安装 jenkins
 
 ```shell
 ./gradlew composeUp
@@ -41,8 +41,15 @@ withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
 
 ## AWS
 
+### ECR
+
+因为 ECR 免费空间为 500m，所以每次推送镜像的时候，我们都要删除上一个镜像，不然多出来的空间会占用费用
+
 ```shell
-docker run --name fly-devops -d -p 80:8080 626246113265.dkr.ecr.us-east-2.amazonaws.com/order-manage-service
+# iam 权限需要先配置
+aws ecr batch-delete-image \
+      --repository-name order-manage-service \
+      --image-ids imageTag=latest
 ```
 
 ### EC2
@@ -50,12 +57,6 @@ docker run --name fly-devops -d -p 80:8080 626246113265.dkr.ecr.us-east-2.amazon
 ```shell
 # ec2 已经安装了 aws cli，配置 iam
 aws configure
-
-# 配置 docker 可以拿到认证,docker pull 有权限下载镜像
-aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 626246113265.dkr.ecr.us-east-2.amazonaws.com
-
-# docker 就可以拿到镜像了
-docker pull 626246113265.dkr.ecr.us-east-2.amazonaws.com/fly-devops:1.0.0
 
 # 安装 kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -69,34 +70,62 @@ sudo install -o root -g root -m 0755 kind /usr/local/bin/kind
 # 安装 docker
 sudo yum update -y
 sudo yum install docker
+
+# 配置 docker 可以拿到认证,docker pull 有权限下载镜像
+aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 626246113265.dkr.ecr.us-east-2.amazonaws.com
+
+# docker 就可以拿到镜像了
+docker pull 626246113265.dkr.ecr.us-east-2.amazonaws.com/fly-devops:1.0.0
+
 # 开机自动启动
 sudo systemctl enable docker
 sudo systemctl start docker
+
 # 将用户 ec2-user 添加到 docker 用户组
 sudo usermod -a -G docker ec2-user
 ```
 
-EC2 的免费内存太小，我们开启 swap 交换分区
+aws 提供给新建用户的 EC2 的免费内存太小，我们开启 swap 交换分区
 
 [开启 swap](https://aws.amazon.com/cn/premiumsupport/knowledge-center/ec2-memory-partition-hard-drive/)
 
 #### 搭建 k8s 集群
 
-注意 ec2 的内存和 cpu 要足够大，不然搭建不起来。而且 k8s 不支持 swap。我们又想支持外网访问内部 pod ，支持使用 NodePort 了。
+注意 ec2 的内存和 cpu 要足够大，不然搭建不起来。而且 k8s 不支持 swap。我们又想支持外网访问内部 pod ，只能使用 NodePort 了。
 
 #### 在 k8s 中使用私有镜像
 
-宿主机一定要先登录了 ecr 的权限，不然 `aws ecr get-login-password` 拿不到密码
+`fly-devops/k8s/jenkins` 是搭建配合 jenkins 玩的 k8s 集群。
 
-[Kubernetes - pull an image from private ECR registry](https://skryvets.com/blog/2021/03/15/kubernetes-pull-image-from-private-ecr-registry/)
+在 ec2 上安装了 kind,kubectl,docker，然后配置 iam，执行 ./run.sh 就可以自动构建k8s 集群。
 
 ```shell
+#!/bin/bash
+
+set -euxo pipefail
+
+# 创建一个 node 的 k8s 集群，并且将宿主机的 80 端口，映射到 node 中的 30000 端口
+kind create cluster --config ./kind-create-cluster.yml
+
+kubectl cluster-info --context kind-export-node-cluster-order-manage
+
+kubectl create namespace fly-devops
+
+# 配置当前 context 的默认 namespace
+kubectl config set-context --current --namespace=fly-devops
+
+# 创建一个 secret，用于挂载到 pod 上，创建 pod 的时候可以 ecr pull image
 kubectl create secret docker-registry regcred \
   --docker-server=626246113265.dkr.ecr.us-east-2.amazonaws.com/order-manage-service \
   --docker-username=AWS \
   --docker-password=$(aws ecr get-login-password) \
   --namespace=fly-devops
+
+# 创建deployment 和 service
+kubectl apply -f ./kubectl-create.yml
 ```
+
+集群搭建成功之后，在宿主机上 `curl http://localhost/orders/test`  就可以访问到 pod 中的服务了。我们也可以通过宿主机的公网 ip 访问到服务。
 
 ### kind
 
