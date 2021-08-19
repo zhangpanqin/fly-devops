@@ -4,8 +4,6 @@
 
 ```shell
 ./gradlew composeUp
-# 或者
-docker-compose -f ./gradle/docker-compose/docker-compose.yml up -d --build --force-recreate
 ```
 
 `fly-devops/gradle/docker-compose/jenkins/Dockerfile`
@@ -44,7 +42,7 @@ withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
 ## AWS
 
 ```shell
-docker container&&docker run --name fly-devops -d -p 80:8080 626246113265.dkr.ecr.us-east-2.amazonaws.com/order-manage-service
+docker run --name fly-devops -d -p 80:8080 626246113265.dkr.ecr.us-east-2.amazonaws.com/order-manage-service
 ```
 
 ### EC2
@@ -53,24 +51,38 @@ docker container&&docker run --name fly-devops -d -p 80:8080 626246113265.dkr.ec
 # ec2 已经安装了 aws cli，配置 iam
 aws configure
 
-# 配置可以拿到认证
+# 配置 docker 可以拿到认证,docker pull 有权限下载镜像
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 626246113265.dkr.ecr.us-east-2.amazonaws.com
 
 # docker 就可以拿到镜像了
 docker pull 626246113265.dkr.ecr.us-east-2.amazonaws.com/fly-devops:1.0.0
+
+# 安装 kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
+
+# 安装 kind
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+sudo install -o root -g root -m 0755 kind /usr/local/bin/kind
+
+# 安装 docker
+sudo yum update -y
+sudo yum install docker
+# 开机自动启动
+sudo systemctl enable docker
+sudo systemctl start docker
+# 将用户 ec2-user 添加到 docker 用户组
+sudo usermod -a -G docker ec2-user
 ```
+
+EC2 的免费内存太小，我们开启 swap 交换分区
+
+[开启 swap](https://aws.amazon.com/cn/premiumsupport/knowledge-center/ec2-memory-partition-hard-drive/)
 
 #### 搭建 k8s 集群
 
-注意 ec2 的内存和 cpu 不然搭建不起来。
-
-```shell
-# 安装 kind
-# kind 创建集群
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/aws/deploy.yaml
-kubectl apply -f https://raw.githubusercontent.com/cornellanthony/nlb-nginxIngress-eks/master/apple.yaml
-kubectl apply -f https://raw.githubusercontent.com/cornellanthony/nlb-nginxIngress-eks/master/banana.yaml
-```
+注意 ec2 的内存和 cpu 要足够大，不然搭建不起来。而且 k8s 不支持 swap。我们又想支持外网访问内部 pod ，支持使用 NodePort 了。
 
 #### 在 k8s 中使用私有镜像
 
@@ -220,7 +232,8 @@ EOF
 
 [nginx-ingress 操作](https://cloud.google.com/community/tutorials/nginx-ingress-gke)
 
-当 cpu 和 内存不足时，集群是创建不成功的
+当 cpu 和 内存不足时，集群是创建不成功的。而且 k8s 不支持 swap ，本地还可以玩玩。但是 aws 上免费的 ec2 无法支持玩 ingress，除非你愿意花钱，我是不愿意的，这个在本地玩玩就行了，如果在 EC2 想暴露 k8s
+内部服务，建议使用 NodePort。
 
 #### 创建 ingress 测试的集群
 
@@ -234,7 +247,77 @@ kind delete clusters nginx-ingress-cluster
  curl localhost/foo
 ```
 
-###  
+### NodePort
+
+通过将宿主机的 port 映射到 node 上的 port，service 配置与 node port 和 pod port 端口的映射。
+
+我们通过访问宿主机上的 port 就可以访问到 port 上的服务。
+
+#### 通过 kind 创建一个 node
+
+这个 node 会和 宿主机上的 port 有一个映射。通过访问宿主机 80 端口，就可以访问到 node 中的 30000.
+
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: export-node-cluster
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30000 # node 容器上的端口
+    hostPort: 80 # 本地端口 80
+```
+
+#### 创建 deployment 部署 port
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-node
+  namespace: fly-dev
+  labels:
+    app2: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.19.1
+          ports:
+            - containerPort: 80
+```
+
+#### 创建 service
+
+service 会桥接 node 端口和 pod 端口映射
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx-service
+  namespace: fly-dev
+spec:
+  type: NodePort
+  selector:
+    app: nginx
+  ports:
+    - port: 80 # service 的端口
+      targetPort: 80 # port 的端口
+      nodePort: 30000 # 映射的 node 端口,取值范围 30000- ? 这个值不记得了
+```
+
+这样我们通过宿主机的端口 port 就可以访问到 pod 中的服务了。
 
 #### 主从集群搭建
 
