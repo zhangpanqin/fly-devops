@@ -6,6 +6,7 @@ plugins {
     id "org.springframework.cloud.contract" version "3.0.3" apply false
     id "org.unbroken-dome.test-sets" version "4.0.0" apply false
     id 'com.google.cloud.tools.jib' version '3.1.2' apply false
+    id "com.gorylenko.gradle-git-properties" version "2.3.1" apply false
 }
 
 allprojects {
