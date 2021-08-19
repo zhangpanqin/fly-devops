@@ -1,19 +1,9 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
-name: nginx-ingress-cluster
+name: export-node-cluster-order-manage
 nodes:
   - role: control-plane
-    kubeadmConfigPatches:
-      - |
-        kind: InitConfiguration
-        nodeRegistration:
-          kubeletExtraArgs:
-            node-labels: "ingress-ready=true"
     extraPortMappings:
-      - containerPort: 80
-        hostPort: 80
-        protocol: TCP
-      - containerPort: 443
-        hostPort: 4430
-        protocol: TCP
+      - containerPort: 30000 # node 容器上的端口
+        hostPort: 80 # 本地端口 80
   - role: worker
