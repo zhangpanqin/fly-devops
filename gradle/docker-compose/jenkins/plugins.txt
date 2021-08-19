@@ -12,6 +12,7 @@ cobertura:1.16
 htmlpublisher:1.25
 junit:1.52
 docker-workflow:1.26
+github:1.34.0
 blueocean:1.24.8
 aws-credentials:1.30
 pipeline-aws:1.43

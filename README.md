@@ -35,6 +35,8 @@ withAWS(credentials: 'aws-iam-fly-devops', region: 'us-east-2') {
 }
 ```
 
+[查看插件提供的 api 还有 jenkins 自带的基础 api](https://www.jenkins.io/doc/pipeline/steps/)
+
 ### Shared Libraries
 
 [自定义 Shared Libraries 代码参考](https://github.com/zhangpanqin/fly-devops-lib)
@@ -126,6 +128,11 @@ kubectl apply -f ./kubectl-create.yml
 ```
 
 集群搭建成功之后，在宿主机上 `curl http://localhost/orders/test`  就可以访问到 pod 中的服务了。我们也可以通过宿主机的公网 ip 访问到服务。
+
+```sh
+wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.33.0.tar.gz
+tar -xzvf ./git-2.33.0.tar.gz
+```
 
 ### kind
 

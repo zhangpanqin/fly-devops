@@ -26,6 +26,7 @@ apt-get install -qy \
   zip \
   unzip \
   sudo \
+  git \
   amazon-ecr-credential-helper \
   gfortran && \
 rm -rf /var/lib/apt/lists/*
@@ -62,4 +63,7 @@ touch /var/run/docker.sock && \
 sudo chgrp docker /var/run/docker.sock && \
 sudo chmod g+w /var/run/docker.sock
 
+# 调试的时候用到
+#RUN echo jenkins:123456@ | chpasswd
+#RUN echo root:123456@ | chpasswd
 USER jenkins
