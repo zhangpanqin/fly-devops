@@ -26,7 +26,6 @@ public class OrderController {
             propertiesFactoryBean.afterPropertiesSet();
             builder.gitInfo(propertiesFactoryBean.getObject());
         }
-
         return builder.address(addr.getHostAddress()).build();
     }
 }
