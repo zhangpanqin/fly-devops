@@ -46,6 +46,9 @@ kind: Ingress
 metadata:
   name: nginx-example-ingress
   namespace: fly-dev
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx
 spec:
   rules:
     - http:
