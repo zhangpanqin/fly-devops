@@ -2,7 +2,7 @@
 
 ```shell
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 626246113265.dkr.ecr.us-east-2.amazonaws.com && helm upgrade --install order-manage-service --set nameOverride=order-manage-service \
---set image.tag=HEAD-a449969efd2719ad572b31380ada146b0dd7e091 \
+--set image.tag=HEAD-cd994356f1b86f93a88dd6817dcfd51d8bd00b5b \
 --set image.credentials.password=$(aws ecr get-login-password) ./
 ```
 
@@ -324,6 +324,13 @@ nodes:
 
 #### 创建 deployment 部署 port
 
+Kubelet使用liveness
+probe（存活探针）来确定何时重启容器。例如，当应用程序处于运行状态但无法做进一步操作，liveness探针将捕获到deadlock，重启处于该状态下的容器，使应用程序在存在bug的情况下依然能够继续运行下去（谁的程序还没几个bug呢）。
+
+Kubelet使用readiness
+probe（就绪探针）来确定容器是否已经就绪可以接受流量。只有当Pod中的容器都处于就绪状态时kubelet才会认定该Pod处于就绪状态。该信号的作用是控制哪些Pod应该作为service的后端。如果Pod处于非就绪状态，那么它们将会被从service的load
+balancer中移除。
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -372,6 +379,18 @@ spec:
 ```
 
 这样我们通过宿主机的端口 port 就可以访问到 pod 中的服务了。
+
+#### PodDisruptionBudget
+
+主动驱除保护，主要针对以下场景
+
+- 节点的维护和升级（库被辞退了 drain）
+- 应用的自动缩容操作（autoscaling down）
+    - 删除 Deployment 或其他管理 Pod 的控制器
+    - 更新了 Deployment 的 Pod 模板导致 Pod 重启
+    - 直接删除 Pod（例如，因为误操作）
+
+由于节点不可用导致 pod 被驱逐不能成为主动
 
 #### 主从集群搭建
 

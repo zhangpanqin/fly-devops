@@ -18,11 +18,12 @@ spec:
       containers:
         - name: order-manage-service
           image: 626246113265.dkr.ecr.us-east-2.amazonaws.com/order-manage-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DEMO_GREETING
+              value: "Hello from the environment"
           ports:
             - containerPort: 8080
-      imagePullSecrets:
-        - name: regcred
 ---
 apiVersion: v1
 kind: Service
