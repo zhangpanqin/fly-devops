@@ -181,6 +181,14 @@ plugins=(
   kubectl
 )
 source ~/.zshrc
+
+# 配置集群
+vim ~/.aws/config
+#[default]
+#region = us-east-1
+#output = json
+aws eks list-clusters
+aws eks update-kubeconfig --name ms-nonprod
 ```
 
 ## k8s
