@@ -42,3 +42,4 @@ terraform/shell-script/delete.txt
 *.tfstate
 *.tfstate.backup
 .terraform/
+tfstate/
