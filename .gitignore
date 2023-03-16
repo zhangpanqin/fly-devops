@@ -1,7 +1,7 @@
 HELP.md
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+!old-resource/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 .DS_Store
@@ -36,3 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 target
+aaa
+bbb
+terraform/shell-script/delete.txt
+*.tfstate
+*.tfstate.backup
+.terraform/
