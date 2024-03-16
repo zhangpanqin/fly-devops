@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+spec:
+  containers:
+    - image: busybox:1.36.1-glibc
+      stdin: true
+      tty: true
+      command: [ "/bin/sh" ]
+      imagePullPolicy: IfNotPresent
+      name: busybox
+  restartPolicy: Always
